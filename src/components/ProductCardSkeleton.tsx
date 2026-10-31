@@ -3,7 +3,7 @@ export function ProductCardSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="w-full overflow-hidden rounded-3xl border border-zinc-800/80 bg-gradient-to-b from-zinc-900 to-zinc-950 animate-pulse"
+      className="w-full overflow-hidden rounded-3xl border border-violet-600/80 shadow-[0_0_0_1px_rgba(168,85,247,0.15)] md:border-zinc-800/80 md:shadow-none bg-gradient-to-b from-zinc-900 to-zinc-950 animate-pulse"
     >
       <div className="w-full aspect-[4/3] bg-zinc-800/70" />
       <div className="flex flex-col items-center gap-3 px-6 pt-4 pb-5">

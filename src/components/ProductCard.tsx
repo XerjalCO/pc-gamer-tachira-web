@@ -14,10 +14,10 @@ export function ProductCard({
       className={[
         "group w-full overflow-hidden rounded-3xl relative",
         "bg-gradient-to-b from-zinc-900 to-zinc-950",
-        "border border-zinc-800/80",
+        // Móvil: mismo borde violeta que la barra de búsqueda
+        "border border-violet-600/80 md:border-zinc-800/80",
         "transition-all duration-300",
-        // Base shadow
-        "shadow-[0_18px_55px_rgba(0,0,0,0.55)]",
+        "shadow-[0_0_0_1px_rgba(168,85,247,0.15),0_18px_55px_rgba(0,0,0,0.55)] md:shadow-[0_18px_55px_rgba(0,0,0,0.55)]",
         // Hover: lift + violet/cyan glow layers
         "hover:-translate-y-1",
         "hover:border-violet-500/60",
