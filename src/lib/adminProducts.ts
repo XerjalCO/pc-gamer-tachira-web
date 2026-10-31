@@ -1,96 +1,45 @@
-import { supabase } from "@/lib/supabase";
 import type { NewProduct, Product } from "@/data/inventario";
 
-export const PRODUCT_IMAGES_BUCKET = "product-images";
-const PUBLIC_PREFIX = `/storage/v1/object/public/${PRODUCT_IMAGES_BUCKET}/`;
+const API = "/api/admin/products";
 
-// Sube cada archivo al bucket con un nombre único y devuelve sus rutas internas
-async function uploadImages(files: File[]): Promise<string[]> {
-  const paths: string[] = [];
-  for (const file of files) {
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage
-      .from(PRODUCT_IMAGES_BUCKET)
-      .upload(path, file, { contentType: file.type, upsert: false });
-    if (error) {
-      await removeImagePaths(paths);
-      throw new Error(`No se pudo subir "${file.name}": ${error.message}`);
-    }
-    paths.push(path);
-  }
-  return paths;
+type ProductFields = Omit<NewProduct, "images">;
+
+// Envía la contraseña admin y lanza el mensaje de error que devuelve la ruta
+async function send(adminPass: string, init: RequestInit): Promise<{ id?: string }> {
+  const headers = new Headers(init.headers);
+  headers.set("x-admin-pass", adminPass);
+  const res = await fetch(API, { ...init, headers, cache: "no-store" });
+  const body = (await res.json().catch(() => ({}))) as { error?: string; id?: string };
+  if (!res.ok) throw new Error(body.error ?? `Error HTTP ${res.status}`);
+  return body;
 }
 
-// Convierte rutas del bucket en URLs públicas
-function toPublicUrls(paths: string[]): string[] {
-  return paths.map(
-    (path) => supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(path).data.publicUrl
-  );
+// Arma el formulario: datos en JSON y las fotos como archivos
+function formBody(data: ProductFields, files: File[], id?: string) {
+  const body = new FormData();
+  if (id) body.set("id", id);
+  body.set("data", JSON.stringify(data));
+  for (const file of files) body.append("images", file);
+  return body;
 }
 
-// Borra archivos del bucket ignorando errores (limpieza best-effort)
-async function removeImagePaths(paths: string[]) {
-  if (paths.length) await supabase.storage.from(PRODUCT_IMAGES_BUCKET).remove(paths);
+/** Sube las imágenes e inserta el producto. Devuelve su id. */
+export async function createProduct(adminPass: string, data: ProductFields, files: File[]): Promise<string> {
+  const body = await send(adminPass, { method: "POST", body: formBody(data, files) });
+  if (!body.id) throw new Error("El servidor no devolvió el id del producto.");
+  return body.id;
 }
 
-// Extrae la ruta interna del bucket a partir de una URL pública (null si es imagen local)
-function pathFromPublicUrl(url: string): string | null {
-  const i = url.indexOf(PUBLIC_PREFIX);
-  return i === -1 ? null : decodeURIComponent(url.slice(i + PUBLIC_PREFIX.length));
+/** Actualiza el producto. Sin archivos nuevos conserva las imágenes actuales. */
+export async function updateProduct(adminPass: string, product: Product, data: ProductFields, files: File[]) {
+  await send(adminPass, { method: "PUT", body: formBody(data, files, product.id) });
 }
 
-/** Sube las imágenes, inserta el producto en la tabla y devuelve su id */
-export async function createProduct(
-  data: Omit<NewProduct, "images">,
-  files: File[]
-): Promise<string> {
-  const paths = await uploadImages(files);
-  const { data: row, error } = await supabase
-    .from("products")
-    .insert({ ...data, images: toPublicUrls(paths) })
-    .select("id")
-    .single();
-  if (error) {
-    // Si falla la inserción no dejamos imágenes huérfanas en Storage
-    await removeImagePaths(paths);
-    throw toFriendlyError(error, data.name);
-  }
-  return row.id;
-}
-
-/**
- * Actualiza el producto por id. Sin archivos nuevos conserva el array de imágenes actual;
- * con archivos nuevos los sube, reemplaza el array y borra del bucket las imágenes anteriores.
- */
-export async function updateProduct(
-  product: Product,
-  data: Omit<NewProduct, "images">,
-  files: File[]
-): Promise<void> {
-  const paths = files.length ? await uploadImages(files) : [];
-  const images = files.length ? toPublicUrls(paths) : product.images;
-  const { error } = await supabase.from("products").update({ ...data, images }).eq("id", product.id);
-  if (error) {
-    await removeImagePaths(paths);
-    throw toFriendlyError(error, data.name);
-  }
-  if (files.length) await removeImagePaths(bucketPaths(product.images));
-}
-
-// Traduce errores conocidos de Postgres a mensajes legibles
-function toFriendlyError(error: { code?: string; message: string }, name: string): Error {
-  return new Error(error.code === "23505" ? `Ya existe un producto llamado "${name}".` : error.message);
-}
-
-// Filtra las URLs que pertenecen al bucket y devuelve sus rutas internas
-function bucketPaths(urls: string[]): string[] {
-  return urls.map(pathFromPublicUrl).filter((p): p is string => p !== null);
-}
-
-/** Elimina el producto de la tabla y sus imágenes alojadas en Storage */
-export async function deleteProduct(product: Product): Promise<void> {
-  const { error } = await supabase.from("products").delete().eq("id", product.id);
-  if (error) throw new Error(error.message);
-  await removeImagePaths(bucketPaths(product.images));
+/** Elimina el producto y sus imágenes del bucket. */
+export async function deleteProduct(adminPass: string, product: Product) {
+  await send(adminPass, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: product.id }),
+  });
 }

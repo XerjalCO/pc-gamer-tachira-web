@@ -36,8 +36,8 @@ function AdminDashboard({ adminPass, onLogout }: { adminPass: string; onLogout: 
   async function handleSave({ stock, ...data }: ProductFormData, files: File[]) {
     let id: string;
     try {
-      if (editing) await updateProduct(editing, data, files);
-      id = editing ? editing.id : await createProduct(data, files);
+      if (editing) await updateProduct(adminPass, editing, data, files);
+      id = editing ? editing.id : await createProduct(adminPass, data, files);
     } catch (err) {
       setToast({ type: "error", text: err instanceof Error ? err.message : "Error al guardar." });
       throw err;
@@ -57,7 +57,7 @@ function AdminDashboard({ adminPass, onLogout }: { adminPass: string; onLogout: 
     if (!confirm(`¿Eliminar "${product.name}"? Esta acción no se puede deshacer.`)) return;
     setDeletingId(product.id);
     try {
-      await deleteProduct(product);
+      await deleteProduct(adminPass, product);
       if (editing?.id === product.id) setEditing(null);
       setToast({ type: "success", text: `"${product.name}" fue eliminado.` });
       reload();
