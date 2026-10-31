@@ -4,6 +4,7 @@ create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
   "desc" text,
+  categoria text not null default '',
   price numeric not null,
   garantia text,
   images text[] not null default '{}',
@@ -20,9 +21,9 @@ alter table public.products
 -- Permisos por columna: anon/authenticated pueden usar todo excepto "stock".
 -- Ojo: si agregas columnas nuevas en el futuro, debes incluirlas aquí para que la tienda las vea.
 revoke select, insert, update on public.products from anon, authenticated;
-grant select (id, name, "desc", price, garantia, images, specs) on public.products to anon, authenticated;
-grant insert (name, "desc", price, garantia, images, specs) on public.products to anon, authenticated;
-grant update (name, "desc", price, garantia, images, specs) on public.products to anon, authenticated;
+grant select (id, name, "desc", categoria, price, garantia, images, specs) on public.products to anon, authenticated;
+grant insert (name, "desc", categoria, price, garantia, images, specs) on public.products to anon, authenticated;
+grant update (name, "desc", categoria, price, garantia, images, specs) on public.products to anon, authenticated;
 
 -- Bucket público para las fotos de los productos (lo usa el panel /admin)
 insert into storage.buckets (id, name, public)
