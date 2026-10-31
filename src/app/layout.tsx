@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   title: "PCGTachira",
   description: "Tienda de computadoras y equipos en PCG Táchira.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
