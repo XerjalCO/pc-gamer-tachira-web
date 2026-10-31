@@ -19,8 +19,8 @@ type Props = {
 
 export function AdminProductForm({ productToEdit, initialStock, onSubmit, onCancelEdit }: Props) {
   const { fields, setters, specRows, setSpecRows, files, setFiles, fileInputRef, reset, toData } = useProductForm(productToEdit, initialStock);
-  const { name, desc, price, stock, garantia } = fields;
-  const { setName, setDesc, setPrice, setStock, setGarantia } = setters;
+  const { name, desc, categoria, price, stock, garantia } = fields;
+  const { setName, setDesc, setCategoria, setPrice, setStock, setGarantia } = setters;
   const [saving, setSaving] = useState(false);
   const editing = Boolean(productToEdit);
 
@@ -54,6 +54,10 @@ export function AdminProductForm({ productToEdit, initialStock, onSubmit, onCanc
         <label className={LABEL_CLASS}>
           Descripción
           <textarea required rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Resumen corto del equipo" className={INPUT_CLASS} />
+        </label>
+        <label className={LABEL_CLASS}>
+          Categoría
+          <input required value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ej. Laptop" className={INPUT_CLASS} />
         </label>
         <div className="grid grid-cols-3 gap-3">
           <label className={LABEL_CLASS}>

@@ -51,8 +51,8 @@ function FaqItem({ question, answer }: { question: string; answer: string | stri
 
 export function FaqSection() {
   return (
-    <section className="w-full max-w-3xl mx-auto px-4 py-12 flex flex-col gap-6">
-      <h2 className="text-center text-2xl sm:text-3xl font-bold tracking-widest text-zinc-100 uppercase">
+    <section className="w-full max-w-3xl mx-auto px-4 pt-4 pb-12 flex flex-col items-center gap-8">
+      <h2 className="w-full text-center text-2xl sm:text-3xl font-bold tracking-widest text-zinc-100 uppercase">
         Preguntas{" "}
         <span className="text-violet-400">Frecuentes</span>
       </h2>

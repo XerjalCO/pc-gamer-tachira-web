@@ -2,6 +2,7 @@
 export type NewProduct = {
   name: string;
   desc: string;
+  categoria: string;
   price: number;
   garantia: string;
   images: string[];
@@ -26,6 +27,7 @@ export const PRODUCTS: NewProduct[] = [
   {
     name: "LENOVO THINKPAD T495",
     desc: "RYZEN 5 3500U · 16GB RAM · 256GB NVMe · 14'' FHD",
+    categoria: "Laptop",
     price: 290,
     garantia: "90 DÍAS",
     images: [
@@ -45,6 +47,7 @@ export const PRODUCTS: NewProduct[] = [
   {
     name: "DELL LATITUDE 3541",
     desc: "INTEL i5 9400H · 16GB RAM · 256GB NVMe · 15.6'' FHD",
+    categoria: "Laptop",
     price: 275,
     garantia: "90 DÍAS",
     images: ["/DELL3541.png", "/DELL3541_ANGLE.png"],
@@ -60,6 +63,7 @@ export const PRODUCTS: NewProduct[] = [
   {
     name: "HP ELITEBOOK 845 G8",
     desc: "RYZEN 5 5650U · 16GB RAM · 256GB NVMe · 14'' FHD",
+    categoria: "Laptop",
     price: 335,
     garantia: "90 DÍAS",
     images: ["/HP845G08.png", "/HP845G08_ANGLE.png"],

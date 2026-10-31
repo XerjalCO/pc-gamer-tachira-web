@@ -13,4 +13,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /** Columnas públicas de products. No usar "*": anon no tiene permiso sobre "stock". */
-export const PUBLIC_PRODUCT_COLUMNS = "id, name, desc, price, garantia, images, specs";
+export const PUBLIC_PRODUCT_COLUMNS = "id, name, desc, categoria, price, garantia, images, specs";

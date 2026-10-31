@@ -39,9 +39,11 @@ export function ProductCard({
             sizes="(max-width: 768px) 90vw, 350px"
           />
         </div>
-        <span className="absolute top-3 right-3 bg-violet-600 text-white text-xs font-bold rounded-lg px-3 py-1 shadow-md pointer-events-none">
-          Ver más
-        </span>
+        {product.categoria ? (
+          <span className="absolute top-3 right-3 max-w-[70%] truncate bg-violet-600 text-white text-xs font-bold rounded-lg px-3 py-1 shadow-md pointer-events-none">
+            {product.categoria}
+          </span>
+        ) : null}
       </div>
 
       {/* Información y precio */}

@@ -24,7 +24,13 @@ export function useProducts() {
         } else {
           setError(null);
           // numeric de Postgres puede llegar como string: se normaliza a number
-          setProducts((data ?? []).map((p) => ({ ...p, price: Number(p.price) })));
+          setProducts(
+            (data ?? []).map((p) => ({
+              ...p,
+              price: Number(p.price),
+              categoria: p.categoria ?? "",
+            }))
+          );
         }
         setLoading(false);
       });

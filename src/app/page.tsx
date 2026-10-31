@@ -12,13 +12,14 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
-  // Filtra productos por nombre o descripción según el texto ingresado
+  // Filtra por nombre, descripción o categoría según el texto ingresado
   const filteredProducts = products.filter((prod) => {
     const q = search.trim().toLowerCase();
     if (!q) return true;
     return (
       prod.name.toLowerCase().includes(q) ||
-      (prod.desc ?? "").toLowerCase().includes(q)
+      (prod.desc ?? "").toLowerCase().includes(q) ||
+      (prod.categoria ?? "").toLowerCase().includes(q)
     );
   });
 

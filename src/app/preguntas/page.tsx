@@ -14,7 +14,7 @@ export default function PreguntasPage() {
         <TopBar />
       </header>
 
-      <main className="flex-1 w-full flex flex-col items-center py-10">
+      <main className="flex-1 w-full flex flex-col items-center pt-4 pb-10">
         <FaqSection />
       </main>
 

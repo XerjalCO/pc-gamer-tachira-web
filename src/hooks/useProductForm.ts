@@ -12,6 +12,7 @@ import { rowsToSpecs, specsToRows, type SpecRow } from "@/components/admin/Specs
 export function useProductForm(product?: Product | null, initialStock = 0) {
   const [name, setName] = useState(product?.name ?? "");
   const [desc, setDesc] = useState(product?.desc ?? "");
+  const [categoria, setCategoria] = useState(product?.categoria ?? "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
   const [stock, setStock] = useState(product ? String(initialStock) : "0");
   const [garantia, setGarantia] = useState(product?.garantia ?? DEFAULT_GARANTIA);
@@ -23,6 +24,7 @@ export function useProductForm(product?: Product | null, initialStock = 0) {
   function reset() {
     setName("");
     setDesc("");
+    setCategoria("");
     setPrice("");
     setStock("0");
     setGarantia(DEFAULT_GARANTIA);
@@ -36,6 +38,7 @@ export function useProductForm(product?: Product | null, initialStock = 0) {
     return {
       name: name.trim(),
       desc: desc.trim(),
+      categoria: categoria.trim(),
       price: Number(price),
       garantia: garantia.trim(),
       specs: rowsToSpecs(specRows),
@@ -44,8 +47,8 @@ export function useProductForm(product?: Product | null, initialStock = 0) {
   }
 
   return {
-    fields: { name, desc, price, stock, garantia },
-    setters: { setName, setDesc, setPrice, setStock, setGarantia },
+    fields: { name, desc, categoria, price, stock, garantia },
+    setters: { setName, setDesc, setCategoria, setPrice, setStock, setGarantia },
     specRows,
     setSpecRows,
     files,
