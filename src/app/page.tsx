@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/data/inventario";
 import { useProducts } from "@/hooks/useProducts";
 import { TopBar } from "@/components/TopBar";
@@ -11,6 +11,13 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
+  const historyPushed = useRef(false);
+
+  // Deja el modal cerrado y limpia el producto tras la transición
+  function dismissModal() {
+    setModalOpen(false);
+    setTimeout(() => setModalProduct(null), 200);
+  }
 
   // Filtra por nombre, descripción o categoría según el texto ingresado
   const filteredProducts = products.filter((prod) => {
@@ -23,15 +30,35 @@ export default function Home() {
     );
   });
 
+  // Abre el detalle y empuja el historial para que "atrás" no salga de la página
   function openModal(prod: Product) {
     setModalProduct(prod);
     setModalOpen(true);
+    if (historyPushed.current) return;
+    window.history.pushState(null, "", window.location.href);
+    historyPushed.current = true;
   }
 
+  // Cierra desde la UI y deshace la entrada de historial creada al abrir
   function closeModal() {
-    setModalOpen(false);
-    setTimeout(() => setModalProduct(null), 200);
+    dismissModal();
+    if (!historyPushed.current) return;
+    historyPushed.current = false;
+    window.history.back();
   }
+
+  // El botón atrás cierra el modal sin navegar fuera de la tienda
+  useEffect(() => {
+    function onPopState(e: PopStateEvent) {
+      if (!historyPushed.current) return;
+      e.preventDefault();
+      historyPushed.current = false;
+      setModalOpen(false);
+      setTimeout(() => setModalProduct(null), 200);
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   return (
     <div className="bg-zinc-950 min-h-screen flex flex-col font-sans text-zinc-100">
