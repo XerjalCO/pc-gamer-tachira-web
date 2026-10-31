@@ -62,7 +62,7 @@ export function CheckoutModal({ items, totalUsd, onClose, onSuccess }: Props) {
 
         <div className="flex flex-col gap-5 overflow-y-auto px-5 py-5">
           <CheckoutSummary items={items} totalUsd={totalUsd} rate={rate} loading={loading} isFallback={error !== null} />
-          <CheckoutForm disabled={loading || items.length === 0} onSubmit={handleSubmit} />
+          <CheckoutForm disabled={loading || items.length === 0} cartTotal={totalUsd} onSubmit={handleSubmit} />
         </div>
       </div>
     </div>
