@@ -79,7 +79,7 @@ export function TopBar() {
       {menuOpen && (
         <nav
           id="menu-movil"
-          className="md:hidden border-t border-violet-600/40 px-4 py-3 flex flex-col gap-1 text-sm font-semibold tracking-[0.12em] text-zinc-100/90"
+          className="md:hidden border-t border-violet-600/40 px-4 py-3 flex flex-col items-end gap-1 text-right text-sm font-semibold tracking-[0.12em] text-zinc-100/90"
         >
           {NAV_LINKS.map((link) => (
             <a
