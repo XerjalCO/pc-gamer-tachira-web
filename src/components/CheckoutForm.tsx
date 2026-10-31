@@ -9,12 +9,13 @@ const LABEL_CLASS = "flex flex-col gap-1.5 text-xs font-semibold uppercase track
 const INPUT_CLASS =
   "w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-base font-normal normal-case tracking-normal text-zinc-100 placeholder:text-zinc-600 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition";
 
-type Props = {
-  disabled: boolean;
-  onSubmit: (details: OrderDetails) => void;
-};
+  type Props = {
+    disabled: boolean;
+    cartTotal: number;
+    onSubmit: (details: OrderDetails) => void;
+  };
 
-export function CheckoutForm({ disabled, onSubmit }: Props) {
+export function CheckoutForm({ disabled, cartTotal, onSubmit }: Props) {
   const [fullName, setFullName] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS[0]);
@@ -24,6 +25,16 @@ export function CheckoutForm({ disabled, onSubmit }: Props) {
   // Envía los datos limpios; la referencia solo se incluye si el método es Pago Móvil
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+  
+    // Disparar el evento de Compra en el Píxel
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq('track', 'Purchase', {
+        currency: 'USD',
+        value: cartTotal
+      });
+    }
+  
+    // Continuar con el flujo original hacia WhatsApp
     onSubmit({
       fullName: fullName.trim(),
       idNumber: idNumber.trim().toUpperCase(),
