@@ -18,6 +18,10 @@ alter table public.products disable row level security;
 alter table public.products
   add column if not exists stock integer not null default 0 check (stock >= 0);
 
+-- Ocultar un equipo en la tienda sin borrarlo. Solo lo escribe la service_role (panel admin).
+alter table public.products
+  add column if not exists is_visible boolean not null default true;
+
 -- Permisos por columna: anon/authenticated pueden usar todo excepto "stock".
 -- Ojo: si agregas columnas nuevas en el futuro, debes incluirlas aquí para que la tienda las vea.
 revoke select, insert, update on public.products from anon, authenticated;

@@ -9,8 +9,8 @@ export type NewProduct = {
   specs: Record<string, string>;
 };
 
-/** Producto tal como viene de la tabla products */
-export type Product = NewProduct & { id: string };
+/** Producto tal como viene de la tabla products. is_visible false lo saca del catálogo. */
+export type Product = NewProduct & { id: string; is_visible?: boolean };
 
 /** Número de WhatsApp en formato internacional sin el + (ej: 584121234567) */
 export const WHATSAPP_NUMBER = "584247199760";

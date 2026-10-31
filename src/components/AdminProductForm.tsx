@@ -8,28 +8,29 @@ import { SpecsFieldset } from "./admin/SpecsFieldset";
 import { ImageFilesHint } from "./admin/ImageFilesHint";
 
 type Props = {
-  /** Producto en edición; si no se pasa, el formulario crea uno nuevo */
   productToEdit?: Product | null;
-  /** Stock actual del producto en edición */
+  seedProduct?: Product | null;
   initialStock?: number;
-  /** Debe lanzar un Error si falla; el formulario solo se limpia si se resuelve */
-  onSubmit: (data: ProductFormData, files: File[]) => Promise<void>;
+  onSubmit: (data: ProductFormData, files: File[], reuseImages?: string[]) => Promise<void>;
   onCancelEdit?: () => void;
 };
 
-export function AdminProductForm({ productToEdit, initialStock, onSubmit, onCancelEdit }: Props) {
-  const { fields, setters, specRows, setSpecRows, files, setFiles, fileInputRef, reset, toData } = useProductForm(productToEdit, initialStock);
+export function AdminProductForm({ productToEdit, seedProduct, initialStock, onSubmit, onCancelEdit }: Props) {
+  const source = productToEdit ?? seedProduct;
+  const { fields, setters, specRows, setSpecRows, files, setFiles, fileInputRef, reset, toData } = useProductForm(source, initialStock);
   const { name, desc, categoria, price, stock, garantia } = fields;
   const { setName, setDesc, setCategoria, setPrice, setStock, setGarantia } = setters;
   const [saving, setSaving] = useState(false);
   const editing = Boolean(productToEdit);
+  const copying = Boolean(seedProduct) && !editing;
 
   // Empaqueta los datos y delega el guardado (insert o update según el modo)
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
     try {
-      await onSubmit(toData(), files);
+      const reuse = copying && files.length === 0 ? seedProduct?.images : undefined;
+      await onSubmit(toData(), files, reuse);
       reset();
     } catch {
       // El padre ya mostró la notificación de error; se conservan los datos para reintentar
@@ -39,12 +40,11 @@ export function AdminProductForm({ productToEdit, initialStock, onSubmit, onCanc
   }
 
   return (
-    <form id="product-form" onSubmit={handleSubmit} className={`${CARD_CLASS} flex flex-col gap-4 ${editing ? "ring-2 ring-amber-500/50" : ""}`}>
+    <form id="product-form" onSubmit={handleSubmit} className={`${CARD_CLASS} flex flex-col gap-4 ${editing ? "ring-2 ring-amber-500/50" : copying ? "ring-2 ring-violet-500/40" : ""}`}>
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-bold">{editing ? "Editar equipo" : "Agregar equipo"}</h2>
-        {editing && (
-          <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-300">Modo edición</span>
-        )}
+        {editing && <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-300">Modo edición</span>}
+        {copying && <span className="rounded-full bg-violet-500/15 px-2.5 py-1 text-xs font-semibold text-violet-300">Copia</span>}
       </div>
       <fieldset disabled={saving} className="flex flex-col gap-4">
         <label className={LABEL_CLASS}>
@@ -79,16 +79,16 @@ export function AdminProductForm({ productToEdit, initialStock, onSubmit, onCanc
 
       <label className={LABEL_CLASS}>
         Imágenes
-        <input ref={fileInputRef} required={!editing} type="file" accept="image/*" multiple disabled={saving} onChange={(e) => setFiles(Array.from(e.target.files ?? []))} className={`${INPUT_CLASS} file:mr-3 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white`} />
+        <input ref={fileInputRef} required={!editing && !copying} type="file" accept="image/*" multiple disabled={saving} onChange={(e) => setFiles(Array.from(e.target.files ?? []))} className={`${INPUT_CLASS} file:mr-3 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white`} />
       </label>
-      <ImageFilesHint files={files} editing={editing} currentCount={productToEdit?.images.length ?? 0} />
+      <ImageFilesHint files={files} editing={editing} copying={copying} currentCount={source?.images.length ?? 0} />
 
       <button type="submit" disabled={saving} className={PRIMARY_BUTTON_CLASS}>
         {saving ? "Guardando..." : editing ? "Actualizar producto" : "Guardar producto"}
       </button>
-      {editing && (
+      {(editing || copying) && (
         <button type="button" onClick={onCancelEdit} disabled={saving} className="rounded-xl border border-zinc-700 px-6 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-50">
-          Cancelar edición
+          {editing ? "Cancelar edición" : "Cancelar copia"}
         </button>
       )}
     </form>

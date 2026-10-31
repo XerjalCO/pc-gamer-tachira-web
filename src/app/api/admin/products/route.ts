@@ -1,6 +1,7 @@
 import { checkAdmin, getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { PUBLIC_PRODUCT_COLUMNS } from "@/lib/supabase";
 import { friendlyDbError, readProductForm, rejectImages } from "@/lib/productPayload";
-import { removeProductImages, uploadProductImages } from "@/lib/productImages";
+import { copyProductImages, removeProductImages, uploadProductImages } from "@/lib/productImages";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -9,17 +10,34 @@ function fail(err: unknown, status = 500) {
   return Response.json({ error: message }, { status: message.startsWith("Ya existe") ? 409 : status });
 }
 
+/** Lista completa del panel, incluidos los equipos ocultos. */
+export async function GET(request: Request) {
+  const denied = checkAdmin(request);
+  if (denied) return denied;
+  try {
+    const admin = getSupabaseAdmin();
+    const full = await admin.from("products").select(`${PUBLIC_PRODUCT_COLUMNS}, is_visible`).order("name");
+    if (!full.error) return Response.json(full.data ?? [], { headers: NO_STORE });
+    if (full.error.code !== "42703") throw new Error(full.error.message);
+    const { data, error } = await admin.from("products").select(PUBLIC_PRODUCT_COLUMNS).order("name");
+    if (error) throw new Error(error.message);
+    return Response.json(data ?? [], { headers: NO_STORE });
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 /** Crea el producto con la service role. El navegador ya no escribe en Supabase. */
 export async function POST(request: Request) {
   const denied = checkAdmin(request);
   if (denied) return denied;
   try {
-    const { product, files } = await readProductForm(request);
+    const { product, files, images: kept } = await readProductForm(request);
     if (!product) return Response.json({ error: "Datos del producto inválidos." }, { status: 400 });
     const imageError = rejectImages(files);
     if (imageError) return Response.json({ error: imageError }, { status: 400 });
-    if (!files.length) return Response.json({ error: "Agrega al menos una imagen." }, { status: 400 });
-    const images = await uploadProductImages(files);
+    const images = files.length ? await uploadProductImages(files) : await copyProductImages(kept);
+    if (!images.length) return Response.json({ error: "Agrega al menos una imagen." }, { status: 400 });
     const { data, error } = await getSupabaseAdmin().from("products").insert({ ...product, images }).select("id").single();
     if (error) {
       await removeProductImages(images);

@@ -37,7 +37,7 @@ export function parseProduct(raw: unknown): ProductWrite | null {
 /** Lee el FormData del panel: JSON en "data", archivos en "images" y el id al editar. */
 export async function readProductForm(request: Request) {
   const form = await request.formData().catch(() => null);
-  if (!form) return { product: null, files: [] as File[], id: null as string | null };
+  if (!form) return { product: null, files: [] as File[], images: [] as string[], id: null as string | null };
   let parsed: unknown = null;
   const dataRaw = form.get("data");
   if (typeof dataRaw === "string") {
@@ -52,8 +52,17 @@ export async function readProductForm(request: Request) {
   return {
     product: parseProduct(parsed),
     files,
+    images: keptImages(parsed),
     id: typeof idField === "string" && idField ? idField : null,
   };
+}
+
+// URLs que el panel reutiliza al duplicar, cuando no se suben archivos nuevos
+function keptImages(parsed: unknown): string[] {
+  if (!parsed || typeof parsed !== "object" || !("images" in parsed)) return [];
+  const images = (parsed as { images: unknown }).images;
+  if (!Array.isArray(images)) return [];
+  return images.filter((item): item is string => typeof item === "string" && item.length > 0);
 }
 
 /** Rechaza archivos que no sean imagen, o que superen 8 archivos / 8 MB cada uno. */

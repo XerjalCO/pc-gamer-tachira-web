@@ -2,13 +2,14 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Product } from "@/data/inventario";
 
-type ProductRow = Omit<Product, "price" | "categoria"> & {
+type ProductRow = Omit<Product, "price" | "categoria" | "is_visible"> & {
   price: number | string;
   categoria?: string | null;
+  is_visible?: boolean | null;
 };
 
-/** Obtiene el catálogo desde /api/products; `reload` vuelve a consultarlo */
-export function useProducts() {
+/** Catálogo público, o el inventario completo si se pasa la contraseña admin */
+export function useProducts(adminPass?: string) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +19,9 @@ export function useProducts() {
     let cancelled = false;
 
     // La consulta directa con la anon key falla: no hay GRANT de "categoria"
-    fetch("/api/products")
+    const headers: HeadersInit = adminPass ? { "x-admin-pass": adminPass } : {};
+    const url = adminPass ? "/api/admin/products" : "/api/products";
+    fetch(url, { headers, cache: "no-store" })
       .then(async (response) => {
         const body: unknown = await response.json().catch(() => null);
         if (!response.ok) {
@@ -39,6 +42,7 @@ export function useProducts() {
             ...p,
             price: Number(p.price),
             categoria: p.categoria ?? "",
+            is_visible: p.is_visible !== false,
           }))
         );
         setLoading(false);
@@ -52,7 +56,7 @@ export function useProducts() {
     return () => {
       cancelled = true;
     };
-  }, [version]);
+  }, [version, adminPass]);
 
   // Fuerza una nueva consulta (ej. tras crear o eliminar un producto)
   const reload = useCallback(() => setVersion((v) => v + 1), []);

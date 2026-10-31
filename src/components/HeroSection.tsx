@@ -42,8 +42,8 @@ export function HeroSection({ search, onSearchChange }: HeroSectionProps) {
               type="text"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Busca lo que quieras ..."
-              className="w-full bg-transparent text-zinc-100 placeholder-zinc-400 focus:outline-none text-base sm:text-lg"
+              placeholder="BUSCADOR"
+              className="w-full bg-transparent text-center font-semibold tracking-[0.12em] text-zinc-100 placeholder:text-zinc-100/68 focus:outline-none text-sm sm:text-base"
             />
           </div>
         </form>
