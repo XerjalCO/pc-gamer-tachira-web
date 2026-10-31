@@ -15,12 +15,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = "https://pcgtachira.com";
+
 export const metadata: Metadata = {
-  title: "PCGTachira",
-  description: "Tienda de computadoras y equipos en PCG Táchira.",
+  metadataBase: new URL(siteUrl),
+  title: "PC Gamer Táchira | Computadoras y Laptops",
+  description:
+    "Venta de equipos usados y refurbished importados de USA. Tienda en San Cristóbal, Venezuela con garantía.",
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",
+  },
+  openGraph: {
+    title: "PC Gamer Táchira | Computadoras y Laptops",
+    description:
+      "Venta de equipos usados y refurbished importados de USA. Tienda en San Cristóbal, Venezuela con garantía.",
+    url: siteUrl,
+    type: "website",
+    siteName: "PC Gamer Táchira",
   },
 };
 
