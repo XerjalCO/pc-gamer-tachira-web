@@ -20,7 +20,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "¿Los equipos tienen garantía?",
     answer:
-      "Sí. Todos nuestros equipos incluyen garantía de 90 días contra fallas de hardware. Si el equipo presenta alguna falla en ese período, lo revisamos, reparamos y/o cambiamos el equipo sin costo adicional.",
+      "Sí. Todos nuestros equipos incluyen garantía de 90 días contra fallas de hardware (La pantalla no tiene garantia). Si el equipo presenta alguna falla en ese período, lo revisamos, reparamos y/o cambiamos el equipo sin costo adicional.",
   },
   {
     question: "¿Los equipos son nuevos o usados?",
